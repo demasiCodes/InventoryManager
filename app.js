@@ -3,8 +3,8 @@ window.addEventListener('DOMContentLoaded', function () {
     var bodyElement = document.getElementById('body');
 
     // Update the title
-    titleElement.textContent = 'New App Title';
+    titleElement.textContent = 'Inventory Manager';
 
     // Update the body
-    bodyElement.textContent = 'This is the new app body.';
+    bodyElement.textContent = 'Use Search Bar to Track Items:';
 });
