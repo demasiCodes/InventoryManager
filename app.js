@@ -1,16 +1,20 @@
 window.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('search-input');
-    const searchIcon = document.getElementById('search-icon');
     const searchButton = document.querySelector('.search-bar button');
+    const clearButton = document.getElementById('clear-button');
 
+    searchButton.style.background = "transparent";
     searchInput.addEventListener('input', function () {
         const inputValue = searchInput.value;
         if (inputValue !== '') {
-            searchIcon.style.fill = 'white'; // Change the color of the icon to white when there is input
-            searchButton.style.background = 'green'; // Change the background color to green when there is input
+            clearButton.style.display = 'block';
         } else {
-            searchIcon.style.fill = 'black'; // Revert the color of the icon to the original color when input is empty
-            searchButton.style.background = 'rgb(154, 153, 153)'; // Revert the background color to the original color when input is empty
+            clearButton.style.display = 'none';
         }
+    });
+
+    clearButton.addEventListener('click', function () {
+        searchInput.value = '';
+        clearButton.style.display = 'none';
     });
 });

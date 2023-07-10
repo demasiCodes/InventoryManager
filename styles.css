@@ -2,6 +2,7 @@
     margin: 0;
     border: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 /* Header */
 .container {
@@ -17,12 +18,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 20px;
 }
 .search-bar {
-    width: 50%;
+    width: 80%;
+    max-width: 400px;
     background: rgb(154, 153, 153);
     display: flex;
+    align-items: center;
     border-radius: 60px;
+    overflow: hidden;
+    position: relative;
 }
 .search-bar input {
     background: transparent;
@@ -31,16 +37,30 @@
     font-size: 20px;
     color: black;
     padding: 10px;
-    margin-left: 0px;
+    margin-left: 10px;
+    border: none;
 }
 ::placeholder {
     color: black;
     opacity: .5;
 }
-.search-bar button svg {
-    width: 40px;
-    height: 40px;
+.search-bar button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-left: 10px;
     cursor: pointer;
-    border-left: 10px;
+}
+.search-bar button svg {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+#clear-button{
+    display: none;
+    margin-right: 30px;
+}
+#clear-button:hover svg path {
+    fill: red;
 }
 /* End Search Bar */
