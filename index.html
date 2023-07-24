@@ -39,8 +39,38 @@
   <!--End Search Bar-->
   <!--Item List-->
   <div id="item-count">Total Items: 0</div>
-  <button type="button" id="add-button">Add Block</button>
+  <button type="button" id="add-button">Add New Item</button>
+  <div id="myModal" class="modal">
+    <!--Pop Up for New Items-->
+    <div class="modal-content">
+      <h2>Add Item</h2>
+      <label for="name">Name:</label>
+      <input type="text" id="name">
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity">
+      <label for="description">Description:</label>
+      <input type="text" id="description">
+      <button id="confirm">Add</button>
+      <button id="cancel">Cancel</button>
+    </div>
+  </div>
   <div class="block-container">
+    <!--Dynamically add/remove items-->
+  </div>
+  <div id="modalAttributes" class="modal">
+    <!-- Pop-up for Modal Attributes -->
+    <div class="modal-content">
+      <h2>Edit Item</h2>
+      <label for="nameInput">Name:</label>
+      <input type="text" id="nameInput" placeholder="Enter a new name">
+      <label for="descriptionInput">Description:</label>
+      <input type="text" id="descriptionInput" placeholder="Enter a new description">
+      <label for="quantityInput">Quantity:</label>
+      <input type="number" id="quantityInput" placeholder="Enter a new quantity">
+      <button id="saveChangesButton">Save Changes</button>
+      <button id="removeItemButton">Remove Item</button>
+      <button id="cancelButton">Cancel</button>
+    </div>
   </div>
   <!--End Item List-->
   </body>
