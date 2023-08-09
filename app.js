@@ -6,6 +6,7 @@ class Item {
         this.description = description;
         Item.itemCount++;
     }
+    //getters
     getName() {
         return this.name;
     }
@@ -14,6 +15,16 @@ class Item {
     }
     getDescription() {
         return this.description;
+    }
+    //setters
+    setName(n) {
+        this.name = n;
+    }
+    setDescription(d) {
+        this.description = d;
+    }
+    setQuantity(q) {
+        this.quantity = q;
     }
     static decrementItemCount() {
         Item.itemCount--;
@@ -24,8 +35,8 @@ class Item {
 }
 Item.itemCount = 0;
 /******** End Item Class ********/
+/******** Search Bar ********/
 window.addEventListener('DOMContentLoaded', function () {
-    /******** Search Bar ********/
     const searchInput = document.getElementById('search-input');
     const clearButton = document.getElementById('clear-button');
     const searchBarContainer = document.querySelector('.search-bar-container');
@@ -54,7 +65,9 @@ window.addEventListener('DOMContentLoaded', function () {
         blocksData = JSON.parse(localStorage.getItem('blocksData')).map(itemData => new Item(itemData.name, itemData.quantity, itemData.description));
         renderBlocks();
     }
-    // Add blocks
+    /**
+     * Add Blocks
+     */
     addButton.addEventListener('click', function () {
         modal.style.display = 'block';
     });
@@ -80,6 +93,9 @@ window.addEventListener('DOMContentLoaded', function () {
             clearInputFields();
             modal.style.display = 'none';
         } 
+        else if (isNaN(quantity)) {
+            alert('Please set quantity to valid number.');
+        }
         else {
             alert('Please fill in all fields.');
         }
@@ -123,11 +139,17 @@ window.addEventListener('DOMContentLoaded', function () {
         const itemCountElement = document.getElementById('item-count');
         itemCountElement.textContent = 'Total Items: ' + Item.getItemCount();
     }
+    /**
+     * Edit Blocks
+     */
     function showModalAttributes(index) {
         const modal = document.getElementById('modalAttributes');
         const nameInput = document.getElementById('nameInput');
         const descriptionInput = document.getElementById('descriptionInput');
         const quantityInput = document.getElementById('quantityInput');
+        const saveChangesButton = document.getElementById('saveChangesButton');
+        const removeItemButton = document.getElementById('removeItemButton');
+        const cancelButton = document.getElementById('cancelButton');
         // Show the modal
         modal.style.display = 'block';
         // Fill the input boxes with the current values
@@ -135,7 +157,7 @@ window.addEventListener('DOMContentLoaded', function () {
         descriptionInput.value = blocksData[index].getDescription();
         quantityInput.value = blocksData[index].getQuantity();
         // Add event listener to the "Save Changes" button
-        document.getElementById('saveChangesButton').addEventListener('click', function () {
+        saveChangesButton.addEventListener('click', function () {
             // Update the attributes with the new values
             blocksData[index].setName(nameInput.value);
             blocksData[index].setDescription(descriptionInput.value);
@@ -145,7 +167,7 @@ window.addEventListener('DOMContentLoaded', function () {
             modal.style.display = 'none';
         });
         // Add event listener to the "Remove Item" button
-        document.getElementById('removeItemButton').addEventListener('click', function () {
+        removeItemButton.addEventListener('click', function () {
             // Remove the clicked block
             block.remove();
             // Remove the block data from the array
@@ -156,8 +178,14 @@ window.addEventListener('DOMContentLoaded', function () {
             modal.style.display = 'none';
         });
         // Add event listener to the "Cancel" button
-        document.getElementById('cancelButton').addEventListener('click', function () {
+        cancelButton.addEventListener('click', function () {
             modal.style.display = 'none';
+        });
+        // Close the modal when clicking anywhere outside of the modal
+        window.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
         });
     }
     // Save blocks
