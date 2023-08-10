@@ -132,7 +132,7 @@ window.addEventListener('DOMContentLoaded', function () {
             blockContainer.appendChild(block);
             // Add an event listener to each block for options
             block.addEventListener('click', function () {
-                showModalAttributes(index);
+                showModalAttributes(index, block);
             });
         });
         // Update the item count display
@@ -142,7 +142,7 @@ window.addEventListener('DOMContentLoaded', function () {
     /**
      * Edit Blocks
      */
-    function showModalAttributes(index) {
+    function showModalAttributes(index, block) {
         const modal = document.getElementById('modalAttributes');
         const nameInput = document.getElementById('nameInput');
         const descriptionInput = document.getElementById('descriptionInput');
@@ -194,9 +194,9 @@ window.addEventListener('DOMContentLoaded', function () {
             block.remove();
             // Remove the block data from the array
             blocksData.splice(index, 1);
-            saveBlocksData();
-            // Decrement item count
             Item.decrementItemCount();
+            saveBlocksData();
+            renderBlocks();
             modal.style.display = 'none';
             removeEventListeners();
         };
