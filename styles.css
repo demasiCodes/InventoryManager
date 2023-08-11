@@ -113,6 +113,9 @@
     cursor: pointer;
     font-weight: bold;
 }
+.circle-button:hover {
+    background-color: rgb(46, 174, 46);
+}
 .item-text{
     color: rgba(255, 255, 255, 0.7);
     font-size: 12px;
@@ -150,9 +153,8 @@
 }
 .block {
     width: 300px; /* Set the desired width for each block */
-    height: 55px; /* Set the min height for each block */
     padding-left: 10px;
-    padding-right: 10px;
+    padding-right: 50px;
     padding-top: 5px;
     padding-bottom: 5px;
     margin-bottom: 10px;
@@ -162,28 +164,39 @@
     display: flex;
     border: 1px solid gray;
     position: relative;
+    overflow-wrap: break-word;
+    
 }
 .block:hover {
     background-color: lightblue;
 }
-/*.block::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 20%;
-    /* Set the width for the right half 
-    height: 100%;
-    background-color: #FF5733;
-} */
-.item-info {
+.info-container {
     margin-right: auto; /* Push the quantity to the right */
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+    flex-grow: 1;
+    width: calc(100% - var(--quantity-width, 40px));
+}
+.item-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.item-description {
+    font-size: 10px;
+    margin-bottom: 0;
+    display: flex;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+.quantity-container {
+    display: flex;
+    width: auto;
 }
 .quantity-info {
     margin-left: auto; /* Push the quantity to the left */
     font-weight: bold;
     color: white;
-    z-index: 1;
     position: absolute;
     top: 50%;
     right: 0%;
@@ -192,5 +205,9 @@
     background-color: #FF5733;
     padding: 10px;
     border-left: 1px solid gray;
+    /* keep quantity in center of box */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 /* End Item List */

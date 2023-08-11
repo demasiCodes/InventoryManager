@@ -144,18 +144,30 @@ window.addEventListener('DOMContentLoaded', function () {
         blocksData.forEach(function (item, index) {
             const block = document.createElement('div');
             block.classList.add('block');
+            // Create a container for item name and description
+            const infoContainer = document.createElement('div');
+            infoContainer.classList.add('info-container');
             // Create a paragraph element for displaying the item name and description
-            const itemInfo = document.createElement('p');
-            itemInfo.innerHTML = `<strong>${item.getName()}</strong> 
-                                <br> ${item.getDescription()}.`;
-            itemInfo.classList.add('item-info'); // Add a class for styling
+            const itemName = document.createElement('p');
+            itemName.textContent = item.getName();
+            itemName.classList.add('item-name'); // Add a class for styling
+            // Create a paragraph element for displaying the item description
+            const itemDescription = document.createElement('p');
+            itemDescription.textContent = item.getDescription();
+            itemDescription.classList.add('item-description');
+            // Append name and description to the container
+            infoContainer.appendChild(itemName);
+            infoContainer.appendChild(itemDescription);
             // Create a paragraph element for displaying the quantity
+            const quantityContainer = document.createElement('div');
+            quantityContainer.classList.add('quantity-container');
             const quantityInfo = document.createElement('p');
             quantityInfo.textContent = item.getQuantity();
             quantityInfo.classList.add('quantity-info'); // Add a class for styling
+            quantityContainer.appendChild(quantityInfo);
+            infoContainer.appendChild(quantityContainer);
             // append info
-            block.appendChild(itemInfo);
-            block.appendChild(quantityInfo);
+            block.appendChild(infoContainer);
             blockContainer.appendChild(block);
             // Add an event listener to each block for options
             block.addEventListener('click', function () {
