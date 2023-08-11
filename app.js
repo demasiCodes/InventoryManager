@@ -111,11 +111,31 @@ window.addEventListener('DOMContentLoaded', function () {
         modal.style.display = 'none';
     });
     // Close the modal when clicking anywhere outside of the modal
-    window.addEventListener('click', function (event) {
-        if (event.target === modal) {
-            modal.style.display = 'none'; 
+    /*let blockClicked = false;
+    function closePopup() {
+        modal.style.display = 'none';
+        blockClicked = false;
+    }
+    window.addEventListener('touchstart', function (event) {
+        const clickedElement = event.target;
+        const isBlock = clickedElement.classList.contains('block');
+
+        if (!isBlock && event.target === modal) {
+            closePopup();
+        } else if (isBlock) {
+            blockClicked = true;
         }
     });
+    window.addEventListener('click', function (event) {
+        const clickedElement = event.target;
+        const isBlock = clickedElement.classList.contains('block');
+
+        if (!isBlock && event.target === modal) {
+            closePopup();
+        } else if (isBlock) {
+            blockClicked = true;
+        }
+    }); */
     // Render storage
     function renderBlocks() {
         // Clear the block container
@@ -126,9 +146,16 @@ window.addEventListener('DOMContentLoaded', function () {
             block.classList.add('block');
             // Create a paragraph element for displaying the item name and description
             const itemInfo = document.createElement('p');
-            itemInfo.textContent = item.getName() + ' : ' + item.getDescription() + ' : ' + item.getQuantity();
+            itemInfo.innerHTML = `<strong>${item.getName()}</strong> 
+                                <br> ${item.getDescription()}.`;
+            itemInfo.classList.add('item-info'); // Add a class for styling
+            // Create a paragraph element for displaying the quantity
+            const quantityInfo = document.createElement('p');
+            quantityInfo.textContent = item.getQuantity();
+            quantityInfo.classList.add('quantity-info'); // Add a class for styling
             // append info
             block.appendChild(itemInfo);
+            block.appendChild(quantityInfo);
             blockContainer.appendChild(block);
             // Add an event listener to each block for options
             block.addEventListener('click', function () {
@@ -137,7 +164,7 @@ window.addEventListener('DOMContentLoaded', function () {
         });
         // Update the item count display
         const itemCountElement = document.getElementById('item-count');
-        itemCountElement.textContent = 'Total Items: ' + Item.getItemCount();
+        itemCountElement.textContent = Item.getItemCount();
     }
     /**
      * Edit Blocks
@@ -151,70 +178,71 @@ window.addEventListener('DOMContentLoaded', function () {
         const removeItemButton = document.getElementById('removeItemButton');
         const cancelButton = document.getElementById('cancelButton');
         // Show the modal
-        modal.style.display = 'block';
-        // Fill the input boxes with the current values
-        nameInput.value = blocksData[index].getName();
-        descriptionInput.value = blocksData[index].getDescription();
-        quantityInput.value = blocksData[index].getQuantity();
-        // Close the modal only when releasing the mouse button outside of the modal
-        const clickOutsideModal = function (event) {
-            if (event.target === modal) {
+        //if (!blockClicked) {
+            modal.style.display = 'block';
+            // Fill the input boxes with the current values
+            nameInput.value = blocksData[index].getName();
+            descriptionInput.value = blocksData[index].getDescription();
+            quantityInput.value = blocksData[index].getQuantity();
+            // Close the modal only when releasing the mouse button outside of the modal
+            const clickOutsideModal = function (event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    window.removeEventListener('click', clickOutsideModal);
+                    removeEventListeners();
+                }
+            };
+            // Create named functions for event listeners
+            const onSaveChangesClicked = function () {
+                // Update the attributes with the new values
+                const newName = nameInput.value;
+                const newDescription = descriptionInput.value;
+                const newQuantity = parseInt(quantityInput.value);
+                if (newName.trim() !== '') {
+                    blocksData[index].setName(newName);
+                }
+                if (newDescription.trim() !== '') {
+                    blocksData[index].setDescription(newDescription);
+                }
+                if (!isNaN(newQuantity) && newQuantity.toString().trim() !== '') {
+                    blocksData[index].setQuantity(newQuantity);
+                } else {
+                    alert('Quantity must be a valid number.');
+                    return;
+                }
+                saveBlocksData();
+                renderBlocks();
                 modal.style.display = 'none';
-                window.removeEventListener('click', clickOutsideModal);
                 removeEventListeners();
+            };
+            // Create named functions for event listeners
+            const onRemoveItemClicked = function () {
+                // Remove the clicked block
+                block.remove();
+                // Remove the block data from the array
+                blocksData.splice(index, 1);
+                Item.decrementItemCount();
+                saveBlocksData();
+                renderBlocks();
+                modal.style.display = 'none';
+                removeEventListeners();
+            };
+            // Create named functions for event listeners
+            const onCancelClicked = function () {
+                modal.style.display = 'none';
+                removeEventListeners();
+            };
+            // Add event listeners using the named functions
+            saveChangesButton.addEventListener('click', onSaveChangesClicked);
+            removeItemButton.addEventListener('click', onRemoveItemClicked);
+            cancelButton.addEventListener('click', onCancelClicked);
+            // Function to remove event listeners
+            function removeEventListeners() {
+                saveChangesButton.removeEventListener('click', onSaveChangesClicked);
+                removeItemButton.removeEventListener('click', onRemoveItemClicked);
+                cancelButton.removeEventListener('click', onCancelClicked);
             }
-        };
-        window.addEventListener('click', clickOutsideModal);
-        // Create named functions for event listeners
-        const onSaveChangesClicked = function () {
-            // Update the attributes with the new values
-            const newName = nameInput.value;
-            const newDescription = descriptionInput.value;
-            const newQuantity = parseInt(quantityInput.value);
-            if (newName.trim() !== '') {
-                blocksData[index].setName(newName);
-            }
-            if (newDescription.trim() !== '') {
-                blocksData[index].setDescription(newDescription);
-            }
-            if (!isNaN(newQuantity) && newQuantity.toString().trim() !== '') {
-                blocksData[index].setQuantity(newQuantity);
-            } else {
-                alert('Quantity must be a valid number.');
-                return;
-            }
-            saveBlocksData();
-            renderBlocks();
-            modal.style.display = 'none';
-            removeEventListeners();
-        };
-        // Create named functions for event listeners
-        const onRemoveItemClicked = function () {
-            // Remove the clicked block
-            block.remove();
-            // Remove the block data from the array
-            blocksData.splice(index, 1);
-            Item.decrementItemCount();
-            saveBlocksData();
-            renderBlocks();
-            modal.style.display = 'none';
-            removeEventListeners();
-        };
-        // Create named functions for event listeners
-        const onCancelClicked = function () {
-            modal.style.display = 'none';
-            removeEventListeners();
-        };
-        // Add event listeners using the named functions
-        saveChangesButton.addEventListener('click', onSaveChangesClicked);
-        removeItemButton.addEventListener('click', onRemoveItemClicked);
-        cancelButton.addEventListener('click', onCancelClicked);
-        // Function to remove event listeners
-        function removeEventListeners() {
-            saveChangesButton.removeEventListener('click', onSaveChangesClicked);
-            removeItemButton.removeEventListener('click', onRemoveItemClicked);
-            cancelButton.removeEventListener('click', onCancelClicked);
-        }
+        //}
     }
     // Save blocks
     function saveBlocksData() {
