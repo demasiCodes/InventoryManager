@@ -135,12 +135,60 @@
 .modal {
     display: none;
 }
+.modal-content h2 {
+    text-align: center;
+}
 .modal-content {
     background-color: white;
     margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+}
+.close-button {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: gray;
+}
+#name, #nameInput,
+#quantity, #quantityInput,
+#description, #descriptionInput {
+    margin-bottom: 10px;
+}
+#confirm {
+    display: inline-block;
+    margin: 10px auto;
+    text-align: center;
+    cursor: pointer;
+    color: black;
+    padding: 5px;
+    border-radius: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: rgb(54, 199, 54);
+}
+#saveChangesButton,
+#removeItemButton {
+    display: inline-block;
+    margin: 10px auto;
+    text-align: center;
+    cursor: pointer;
+    color: black;
+    padding: 5px;
+    border-radius: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+#saveChangesButton {
+    background-color: rgb(54, 199, 54);
+}
+#removeItemButton {
+    background-color: rgb(234, 152, 152);
 }
 /* The Item Blocks */
 .block-container {

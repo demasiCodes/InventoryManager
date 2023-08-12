@@ -49,15 +49,15 @@
   <div id="myModal" class="modal">
     <!--Pop Up for New Items-->
     <div class="modal-content">
+      <button id="cancel" class="close-button">&#x2715</button>
       <h2>Add Item</h2>
-      <label for="name">Name:</label>
-      <input type="text" id="name">
-      <label for="quantity">Quantity:</label>
-      <input type="number" id="quantity">
-      <label for="description">Description:</label>
-      <input type="text" id="description">
+      <label for="name"><strong>Name:</strong></label>
+      <input type="text" id="name" placeholder="Enter Name">
+      <label for="quantity"><strong>Quantity:</strong></label>
+      <input type="number" id="quantity" placeholder="Enter Quantity">
+      <label for="description"><strong>Description:</strong></label>
+      <input type="text" id="description" placeholder="Enter Description">
       <button id="confirm">Add</button>
-      <button id="cancel">Cancel</button>
     </div>
   </div>
   <div class="block-container">
@@ -66,16 +66,18 @@
   <div id="modalAttributes" class="modal">
     <!-- Pop-up for Modal Attributes -->
     <div class="modal-content">
+      <button id="cancelButton" class="close-button">&#x2715</button>
       <h2>Edit Item</h2>
-      <label for="nameInput">Name:</label>
+      <label for="nameInput"><strong>Name:</strong></label>
       <input type="text" id="nameInput" placeholder="Enter a new name">
-      <label for="quantityInput">Quantity:</label>
+      <label for="quantityInput"><strong>Quantity:</strong></label>
       <input type="number" id="quantityInput" placeholder="Enter a new quantity">
-      <label for="descriptionInput">Description:</label>
+      <label for="descriptionInput"><strong>Description:</strong></label>
       <input type="text" id="descriptionInput" placeholder="Enter a new description">
-      <button id="saveChangesButton" type="button">Save Changes</button>
-      <button id="removeItemButton" type="button">Remove Item</button>
-      <button id="cancelButton" type="button">Cancel</button>
+      <div class="button-container">
+        <button id="saveChangesButton" class="modal-button">Save Changes</button>
+        <button id="removeItemButton" class="modal-button">Remove Item</button>
+      </div>
     </div>
   </div>
   <!--End Item List-->

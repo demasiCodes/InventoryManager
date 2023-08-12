@@ -229,15 +229,18 @@ window.addEventListener('DOMContentLoaded', function () {
             };
             // Create named functions for event listeners
             const onRemoveItemClicked = function () {
-                // Remove the clicked block
-                block.remove();
-                // Remove the block data from the array
-                blocksData.splice(index, 1);
-                Item.decrementItemCount();
-                saveBlocksData();
-                renderBlocks();
-                modal.style.display = 'none';
-                removeEventListeners();
+                const confirmDelete = confirm('Are you sure you want to remove this item?');
+                if (confirmDelete) {
+                    // Remove the clicked block
+                    block.remove();
+                    // Remove the block data from the array
+                    blocksData.splice(index, 1);
+                    Item.decrementItemCount();
+                    saveBlocksData();
+                    renderBlocks();
+                    modal.style.display = 'none';
+                    removeEventListeners();
+                }
             };
             // Create named functions for event listeners
             const onCancelClicked = function () {
