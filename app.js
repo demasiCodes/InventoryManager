@@ -1,3 +1,4 @@
+
 /******** Item Class ********/
 class Item {
     constructor(name, quantity, description) {
@@ -44,22 +45,81 @@ window.addEventListener('DOMContentLoaded', function () {
         const inputValue = searchInput.value;
         if (inputValue !== '') {
             searchBarContainer.classList.add('active'); // Add the .active class
+            filteredBlocks = searchBlocks(inputValue, blocksData);
         } else {
+            filteredBlocks = blocksData;
             searchBarContainer.classList.remove('active'); // Remove the .active class
+        }
+        renderBlocks();
+    });
+    // Add an event listener for entering search input
+    searchInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            const inputValue = searchInput.value;
+            // Call the renderBlocks function with the search query
+            filteredBlocks = searchBlocks(inputValue, blocksData);
+            renderBlocks();
+            // Prevent the default behavior of the Enter key (form submission)
+            event.preventDefault();
         }
     });
     clearButton.addEventListener('click', function () {
         searchInput.value = '';
+        renderBlocks();
         searchBarContainer.classList.remove('active'); // Remove the .active class
     });
-    /******** End Search Bar ********/
-    /******** Item List ********/
+    /******** Search Algorithm ********/
+    function calculateLevenshteinDistance(a, b) {
+        // Remove spaces and non-alphabetic characters and convert to lowercase
+        a = a.replace(/[^a-zA-Z]/g, '').toLowerCase();
+        b = b.replace(/[^a-zA-Z]/g, '').toLowerCase();
+        const dp = Array.from(Array(a.length + 1), () => Array(b.length + 1).fill(0));
+        for (let i = 0; i <= a.length; i++) {
+            for (let j = 0; j <= b.length; j++) {
+                if (i === 0) {
+                    dp[i][j] = j;
+                } else if (j === 0) {
+                    dp[i][j] = i;
+                } else {
+                    dp[i][j] = Math.min(
+                        dp[i - 1][j - 1] + (a[i - 1] !== b[j - 1] ? 1 : 0),
+                        dp[i][j - 1] + 1,
+                        dp[i - 1][j] + 1
+                    );
+                }
+            }
+        }
+        return dp[a.length][b.length];
+    }
+    function searchBlocks(query, blocksData, maxDistance = 3) {
+        const results = [];
+        for (const blockData of blocksData) {
+            const itemName = blockData.name;
+            const distance = calculateLevenshteinDistance(query, itemName);
+            if (distance <= maxDistance) {
+                results.push({ blockData, distance });
+            }
+        }
+        results.sort((a, b) => a.distance - b.distance);
+        const orderedBlocks = results.map(result => result.blockData);
+        return orderedBlocks;
+    }
+    /******** End Search Algorithm ********/
+/******** End Search Bar ********/
+/******** Item List ********/
     const blockContainer = document.querySelector('.block-container');
     const addButton = document.getElementById('add-button');
     const modal = document.getElementById('myModal'); // new item pop-ups
     const confirmButton = document.getElementById('confirm'); // new item pop-ups
     const cancelButton = document.getElementById('cancel'); // new item pop-ups
     let blocksData = [];
+    let filteredBlocks = [];
+    // Function to sort the blocksData array alphabetically by item name
+    function sortBlocksDataAlphabetically() {
+        blocksData.sort((a, b) => {
+            return a.getName().localeCompare(b.getName());
+        });
+    }
     // Load blocks from local storage
     if (localStorage.getItem('blocksData')) {
         blocksData = JSON.parse(localStorage.getItem('blocksData')).map(itemData => new Item(itemData.name, itemData.quantity, itemData.description));
@@ -110,38 +170,16 @@ window.addEventListener('DOMContentLoaded', function () {
         clearInputFields();
         modal.style.display = 'none';
     });
-    // Close the modal when clicking anywhere outside of the modal
-    /*let blockClicked = false;
-    function closePopup() {
-        modal.style.display = 'none';
-        blockClicked = false;
-    }
-    window.addEventListener('touchstart', function (event) {
-        const clickedElement = event.target;
-        const isBlock = clickedElement.classList.contains('block');
-
-        if (!isBlock && event.target === modal) {
-            closePopup();
-        } else if (isBlock) {
-            blockClicked = true;
-        }
-    });
-    window.addEventListener('click', function (event) {
-        const clickedElement = event.target;
-        const isBlock = clickedElement.classList.contains('block');
-
-        if (!isBlock && event.target === modal) {
-            closePopup();
-        } else if (isBlock) {
-            blockClicked = true;
-        }
-    }); */
     // Render storage
     function renderBlocks() {
         // Clear the block container
         blockContainer.innerHTML = '';
+        // Get the current search input value
+        const searchInputValue = searchInput.value.trim();
+        // Determine which array to use based on search input
+        const arrayToRender = searchInputValue === '' ? blocksData : filteredBlocks;
         // Create and append blocks based on the data array
-        blocksData.forEach(function (item, index) {
+        arrayToRender.forEach(function (item, index) {
             const block = document.createElement('div');
             block.classList.add('block');
             // Create a container for item name and description
@@ -149,11 +187,11 @@ window.addEventListener('DOMContentLoaded', function () {
             infoContainer.classList.add('info-container');
             // Create a paragraph element for displaying the item name and description
             const itemName = document.createElement('p');
-            itemName.textContent = item.getName();
+            itemName.textContent = item.name; //FIXME
             itemName.classList.add('item-name'); // Add a class for styling
             // Create a paragraph element for displaying the item description
             const itemDescription = document.createElement('p');
-            itemDescription.textContent = item.getDescription();
+            itemDescription.textContent = item.description; //FIXME
             itemDescription.classList.add('item-description');
             // Append name and description to the container
             infoContainer.appendChild(itemName);
@@ -162,13 +200,15 @@ window.addEventListener('DOMContentLoaded', function () {
             const quantityContainer = document.createElement('div');
             quantityContainer.classList.add('quantity-container');
             const quantityInfo = document.createElement('p');
-            quantityInfo.textContent = item.getQuantity();
+            quantityInfo.textContent = item.quantity; //FIXME
             quantityInfo.classList.add('quantity-info'); // Add a class for styling
             quantityContainer.appendChild(quantityInfo);
             infoContainer.appendChild(quantityContainer);
             // append info
             block.appendChild(infoContainer);
             blockContainer.appendChild(block);
+            //set attribute to keep track of index in blocksData
+            block.setAttribute('ogIndex', blocksData.indexOf(item));
             // Add an event listener to each block for options
             block.addEventListener('click', function () {
                 showModalAttributes(index, block);
@@ -190,77 +230,83 @@ window.addEventListener('DOMContentLoaded', function () {
         const removeItemButton = document.getElementById('removeItemButton');
         const cancelButton = document.getElementById('cancelButton');
         // Show the modal
-        //if (!blockClicked) {
-            modal.style.display = 'block';
-            // Fill the input boxes with the current values
-            nameInput.value = blocksData[index].getName();
-            descriptionInput.value = blocksData[index].getDescription();
-            quantityInput.value = blocksData[index].getQuantity();
-            // Close the modal only when releasing the mouse button outside of the modal
-            const clickOutsideModal = function (event) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                    window.removeEventListener('click', clickOutsideModal);
-                    removeEventListeners();
-                }
-            };
-            // Create named functions for event listeners
-            const onSaveChangesClicked = function () {
-                // Update the attributes with the new values
-                const newName = nameInput.value;
-                const newDescription = descriptionInput.value;
-                const newQuantity = parseInt(quantityInput.value);
-                if (newName.trim() !== '') {
-                    blocksData[index].setName(newName);
-                }
-                if (newDescription.trim() !== '') {
-                    blocksData[index].setDescription(newDescription);
-                }
-                if (!isNaN(newQuantity) && newQuantity.toString().trim() !== '') {
-                    blocksData[index].setQuantity(newQuantity);
-                } else {
-                    alert('Quantity must be a valid number.');
-                    return;
-                }
+        modal.style.display = 'block';
+        // Retrieve the correct block data from the filteredBlocks array
+        const ogIndex = parseInt(block.getAttribute('ogIndex'));
+        const selectedBlockData = blocksData[ogIndex];
+        // Fill the input boxes with the current values
+        nameInput.value = selectedBlockData.getName();
+        descriptionInput.value = selectedBlockData.getDescription();
+        quantityInput.value = selectedBlockData.getQuantity();
+        // Close the modal only when releasing the mouse button outside of the modal
+        const clickOutsideModal = function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                window.removeEventListener('click', clickOutsideModal);
+                removeEventListeners();
+            }
+        };
+        // Create named functions for event listeners
+        const onSaveChangesClicked = function () {
+            // Update the attributes with the new values
+            const newName = nameInput.value;
+            const newDescription = descriptionInput.value;
+            const newQuantity = parseInt(quantityInput.value);
+            if (newName.trim() !== '') {
+                blocksData[ogIndex].setName(newName);
+                filteredBlocks[index].setName(newName);
+            }
+            if (newDescription.trim() !== '') {
+                blocksData[ogIndex].setDescription(newDescription);
+                filteredBlocks[index].setDescription(newDescription);
+            }
+            if (!isNaN(newQuantity) && newQuantity.toString().trim() !== '') {
+                blocksData[ogIndex].setQuantity(newQuantity);
+                filteredBlocks[index].setQuantity(newQuantity);
+            } else {
+                alert('Quantity must be a valid number.');
+                return;
+            }
+            saveBlocksData();
+            renderBlocks();
+            modal.style.display = 'none';
+            removeEventListeners();
+        };
+        // Create named functions for event listeners
+        const onRemoveItemClicked = function () {
+            const confirmDelete = confirm('Are you sure you want to remove this item?');
+            if (confirmDelete) {
+                // Remove the clicked block
+                block.remove();
+                // Remove the block data from the array
+                blocksData.splice(ogIndex, 1);
+                filteredBlocks.splice(index, 1);
+                Item.decrementItemCount();
                 saveBlocksData();
                 renderBlocks();
                 modal.style.display = 'none';
                 removeEventListeners();
-            };
-            // Create named functions for event listeners
-            const onRemoveItemClicked = function () {
-                const confirmDelete = confirm('Are you sure you want to remove this item?');
-                if (confirmDelete) {
-                    // Remove the clicked block
-                    block.remove();
-                    // Remove the block data from the array
-                    blocksData.splice(index, 1);
-                    Item.decrementItemCount();
-                    saveBlocksData();
-                    renderBlocks();
-                    modal.style.display = 'none';
-                    removeEventListeners();
-                }
-            };
-            // Create named functions for event listeners
-            const onCancelClicked = function () {
-                modal.style.display = 'none';
-                removeEventListeners();
-            };
-            // Add event listeners using the named functions
-            saveChangesButton.addEventListener('click', onSaveChangesClicked);
-            removeItemButton.addEventListener('click', onRemoveItemClicked);
-            cancelButton.addEventListener('click', onCancelClicked);
-            // Function to remove event listeners
-            function removeEventListeners() {
-                saveChangesButton.removeEventListener('click', onSaveChangesClicked);
-                removeItemButton.removeEventListener('click', onRemoveItemClicked);
-                cancelButton.removeEventListener('click', onCancelClicked);
             }
-        //}
+        };
+        // Create named functions for event listeners
+        const onCancelClicked = function () {
+            modal.style.display = 'none';
+            removeEventListeners();
+        };
+        // Add event listeners using the named functions
+        saveChangesButton.addEventListener('click', onSaveChangesClicked);
+        removeItemButton.addEventListener('click', onRemoveItemClicked);
+        cancelButton.addEventListener('click', onCancelClicked);
+        // Function to remove event listeners
+        function removeEventListeners() {
+            saveChangesButton.removeEventListener('click', onSaveChangesClicked);
+            removeItemButton.removeEventListener('click', onRemoveItemClicked);
+            cancelButton.removeEventListener('click', onCancelClicked);
+        }
     }
     // Save blocks
     function saveBlocksData() {
+        sortBlocksDataAlphabetically();
         // Convert Item objects to plain data objects for storage
         const plainData = blocksData.map(item => ({ name: item.getName(), quantity: item.getQuantity(), description: item.getDescription() }));
         // Save the block data to local storage
