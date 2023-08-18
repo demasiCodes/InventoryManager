@@ -8,9 +8,20 @@
   <link rel="stylesheet" type="text/css" href="styles.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="Photos/lehighLogo2.png" type="image">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 
 <body>
+  <script>
+    // Use axios here
+    axios.get('http://localhost:3000')
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  </script>
   <!--HEADER-->
   <div class="container">
     <h1 id="title">Inventory Manager</h1>
