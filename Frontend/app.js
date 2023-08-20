@@ -1,20 +1,5 @@
 /*** Server Setup *******/
-// server's URL
-const serverUrl = 'http://localhost:3000';
-// Fetch items from the server
-async function fetchItems() {
-    try {
-        const response = await axios.get(`${serverUrl}/items`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching items:', error);
-        return [];
-    }
-}
-// Render items from MongoDB
-async function renderItems() {
-    const items = await fetchItems();
-}
+
 /***End Server Setup *******/
 /******** Item Class ********/
 class Item {
