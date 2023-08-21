@@ -73,8 +73,8 @@ window.addEventListener('DOMContentLoaded', function () {
     /******** Search Algorithm ********/
     function calculateLevenshteinDistance(a, b) {
         // Remove spaces and non-alphabetic characters and convert to lowercase
-        a = a.replace(/[^a-zA-Z]/g, '').toLowerCase();
-        b = b.replace(/[^a-zA-Z]/g, '').toLowerCase();
+        a = a.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        b = b.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
         const dp = Array.from(Array(a.length + 1), () => Array(b.length + 1).fill(0));
         for (let i = 0; i <= a.length; i++) {
             for (let j = 0; j <= b.length; j++) {
@@ -142,18 +142,28 @@ window.addEventListener('DOMContentLoaded', function () {
         if (name && !isNaN(quantity) && description) {
             // Create a new block and item element
             const newItem = new Item(name, quantity, description);
-            const newBlock = document.createElement('div');
-            newBlock.classList.add('block');
-            newBlock.textContent = newItem.getName();
-            // Append the new block to the container
-            blockContainer.appendChild(newBlock);
-            // Store the block data in the array
-            blocksData.push(newItem);
-            saveBlocksData();
-            renderBlocks();
-            // Close the modal after adding the item
-            clearInputFields();
-            modal.style.display = 'none';
+            //send data to backend
+            axios.post('/create', newItem)
+                .then(response => {
+                    // Handle Success
+                    console.log('Item added:', response.data);
+                    const newBlock = document.createElement('div');
+                    newBlock.classList.add('block');
+                    newBlock.textContent = newItem.getName();
+                    // Append the new block to the container
+                    blockContainer.appendChild(newBlock);
+                    // Store the block data in the array
+                    blocksData.push(newItem);
+                    saveBlocksData();
+                    renderBlocks();
+                    // Close the modal after adding the item
+                    clearInputFields();
+                    modal.style.display = 'none';
+                })
+                .catch(error => {
+                    // Handle error
+                    console.error('Error adding item:', error);
+                });
         } 
         else if (isNaN(quantity)) {
             alert('Please set quantity to valid number.');

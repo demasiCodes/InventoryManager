@@ -144,6 +144,7 @@
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+    position: relative;
 }
 .close-button {
     position: absolute;
@@ -158,10 +159,19 @@
 #name, #nameInput,
 #quantity, #quantityInput,
 #description, #descriptionInput {
+    display: block;
+    width: 100%;
     margin-bottom: 10px;
 }
+.button-containerAdd {
+    text-align: center;
+    /* Center the buttons */
+    bottom: 20px;
+    /* Adjust the distance from the bottom */
+    left: 0;
+    right: 0;
+}
 #confirm {
-    display: inline-block;
     margin: 10px auto;
     text-align: center;
     cursor: pointer;
@@ -172,11 +182,20 @@
     padding-right: 20px;
     background-color: rgb(54, 199, 54);
 }
+.button-container {
+    text-align: center;
+    margin-top: 15px;
+}
+.modal-button {
+    cursor: pointer;
+    color: black;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+    margin: 0 5px;
+}
 #saveChangesButton,
 #removeItemButton {
-    display: inline-block;
-    margin: 10px auto;
-    text-align: center;
     cursor: pointer;
     color: black;
     padding: 5px;
