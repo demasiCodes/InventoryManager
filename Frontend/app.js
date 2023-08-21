@@ -133,7 +133,9 @@ window.addEventListener('DOMContentLoaded', function () {
     addButton.addEventListener('click', function () {
         modal.style.display = 'block';
     });
-    confirmButton.addEventListener('click', function () {
+    confirmButton.addEventListener('click', function (event) {
+        // Prevent the default form submission behavior
+        event.preventDefault();
         // Prompt for user input
         const name = document.getElementById('name').value;
         const quantity = parseInt(document.getElementById('quantity').value);

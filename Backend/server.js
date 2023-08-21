@@ -6,14 +6,27 @@ const collection = client.db("Inventory").collection("Items");
 
 //connection to frontend
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const port = 3000;
 app.use(express.json());
+const allowedOrigins = [
+    'https://demasicodes.github.io',
+];
+app.use(cors({
+    origin: allowedOrigins,
+}));
 
-//check if server running
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+// Start the Express server
+client.connect()
+    .then(() => {
+        app.listen(port, () => {
+            console.log(`Server is running on port ${port}`);
+        });
+    })
+    .catch(error => {
+        console.error('Error connecting to database:', error);
+    });
 
 app.post('/create', async (req, res) => {
     // Handle item creation
@@ -39,14 +52,3 @@ app.put('/update/:itemId', async (req, res) => {
 app.delete('/delete/:itemId', async (req, res) => {
     // Handle item deletion
 });
-
-// Start the Express server
-client.connect()
-    .then(() => {
-        app.listen(port, () => {
-            console.log(`Server is running on port ${port}`);
-        });
-    })
-    .catch(error => {
-        console.error('Error connecting to database:', error);
-    });
