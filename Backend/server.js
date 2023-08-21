@@ -12,6 +12,7 @@ const port = 3000;
 app.use(express.json());
 const allowedOrigins = [
     'https://demasicodes.github.io',
+    'http://127.0.0.1:5500',
 ];
 app.use(cors({
     origin: allowedOrigins,
@@ -33,7 +34,7 @@ app.post('/create', async (req, res) => {
     const newItemData = req.body;
     try {
         const result = await collection.insertOne(newItemData);
-        res.status(201).json(result.ops[0]); // Return the inserted document
+        res.status(201).json(result.insertedId); // Return the inserted documents id
     } catch (error) {
         console.error('Error creating item:', error);
         res.status(500).json({ error: 'Failed to create item' });

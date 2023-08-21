@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', function () {
     addButton.addEventListener('click', function () {
         modal.style.display = 'block';
     });
-    confirmButton.addEventListener('click', function (event) {
+    document.getElementById('inventoryForm').addEventListener('submit', function (event) {
         // Prevent the default form submission behavior
         event.preventDefault();
         // Prompt for user input
@@ -145,7 +145,7 @@ window.addEventListener('DOMContentLoaded', function () {
             // Create a new block and item element
             const newItem = new Item(name, quantity, description);
             //send data to backend
-            axios.post('/create', newItem)
+            axios.post('http://localhost:3000/create', newItem)
                 .then(response => {
                     // Handle Success
                     console.log('Item added:', response.data);
