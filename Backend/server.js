@@ -42,14 +42,64 @@ app.post('/create', async (req, res) => {
 });
 
 app.get('/items', async (req, res) => {
-    // Handle item retrieval
-
+    try {
+        const items = await collection.find().toArray();
+        res.status(200).json(items);
+    } catch (error) {
+        console.error('Error fetching items:', error);
+        res.status(500).json({ error: 'Failed to fetch items' });
+    }
 });
 
-app.put('/update/:itemId', async (req, res) => {
-    // Handle item update
+// GET route to fetch item details by ID
+const { ObjectId } = require('mongodb');
+app.get('/items/:id', async (req, res) => {
+    const itemId = req.params.id;
+    try {
+        const result = await collection.findOne({ _id: new ObjectId(itemId) });
+
+        if (result) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json({ error: 'Item not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching item details:', error);
+        res.status(500).json({ error: 'Failed to fetch item details' });
+    }
 });
 
-app.delete('/delete/:itemId', async (req, res) => {
-    // Handle item deletion
+app.put('/items/:id', async (req, res) => {
+    const itemId = req.params.id;
+    const updatedItemData = req.body;
+    try {
+        const result = await collection.updateOne(
+            { _id: new ObjectId(itemId) },
+            { $set: updatedItemData }
+        );
+
+        if (result.modifiedCount > 0) {
+            res.status(200).json({ message: 'Item updated successfully' });
+        } else {
+            res.status(404).json({ error: 'Item not found' });
+        }
+    } catch (error) {
+        console.error('Error updating item:', error);
+        res.status(500).json({ error: 'Failed to update item' });
+    }
+});
+
+app.delete('/items/:id', async (req, res) => {
+    const itemId = req.params.id;
+    try {
+        const result = await collection.deleteOne({ _id: new ObjectId(itemId) });
+        if (result.deletedCount === 1) {
+            res.status(204).send();
+        } else {
+            res.status(404).json({ error: 'Item not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting item:', error);
+        res.status(500).json({ error: 'Failed to delete item' });
+    }
 });

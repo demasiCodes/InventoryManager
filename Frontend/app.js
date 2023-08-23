@@ -1,12 +1,13 @@
 /*** Server Setup *******/
 
 /***End Server Setup *******/
-/******** Item Class ********/
+/******** Item Class ********
 class Item {
-    constructor(name, quantity, description) {
+    constructor(name, quantity, description, id) {
         this.name = name;
         this.quantity = quantity;
         this.description = description;
+        this._id = id;
         Item.itemCount++;
     }
     //getters
@@ -19,6 +20,9 @@ class Item {
     getDescription() {
         return this.description;
     }
+    getId() {
+        return this._id;
+    }
     //setters
     setName(n) {
         this.name = n;
@@ -28,6 +32,9 @@ class Item {
     }
     setQuantity(q) {
         this.quantity = q;
+    }
+    setId(id) {
+        this._id = id;
     }
     static decrementItemCount() {
         Item.itemCount--;
@@ -47,9 +54,9 @@ window.addEventListener('DOMContentLoaded', function () {
         const inputValue = searchInput.value;
         if (inputValue !== '') {
             searchBarContainer.classList.add('active'); // Add the .active class
-            filteredBlocks = searchBlocks(inputValue, blocksData);
+            //filteredBlocks = searchBlocks(inputValue, blocksData);
         } else {
-            filteredBlocks = blocksData;
+            //filteredBlocks = blocksData;
             searchBarContainer.classList.remove('active'); // Remove the .active class
         }
         renderBlocks();
@@ -59,7 +66,7 @@ window.addEventListener('DOMContentLoaded', function () {
         if (event.key === 'Enter') {
             const inputValue = searchInput.value;
             // Call the renderBlocks function with the search query
-            filteredBlocks = searchBlocks(inputValue, blocksData);
+            //filteredBlocks = searchBlocks(inputValue, blocksData);
             renderBlocks();
             // Prevent the default behavior of the Enter key (form submission)
             event.preventDefault();
@@ -93,7 +100,7 @@ window.addEventListener('DOMContentLoaded', function () {
         }
         return dp[a.length][b.length];
     }
-    function searchBlocks(query, blocksData, maxDistance = 4) {
+    /*function searchBlocks(query, blocksData, maxDistance = 4) {
         const results = [];
         for (const blockData of blocksData) {
             const itemName = blockData.name;
@@ -105,7 +112,7 @@ window.addEventListener('DOMContentLoaded', function () {
         results.sort((a, b) => a.distance - b.distance);
         const orderedBlocks = results.map(result => result.blockData);
         return orderedBlocks;
-    }
+    } */
     /******** End Search Algorithm ********/
 /******** End Search Bar ********/
 /******** Item List ********/
@@ -114,19 +121,26 @@ window.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('myModal'); // new item pop-ups
     const confirmButton = document.getElementById('confirm'); // new item pop-ups
     const cancelButton = document.getElementById('cancel'); // new item pop-ups
-    let blocksData = [];
-    let filteredBlocks = [];
+    //let blocksData = []; //REMOVE
+    //let filteredBlocks = [];
+    /*async function initializeApp() { // DO I NEED THIS???
+        try {
+            // Fetch data from the backend using an HTTP request
+            const response = await axios.get('http://localhost:3000/items');
+            renderBlocks(); // Call a rendering function to display the blocks
+        } catch (error) {
+            console.error('Error initializing app:', error);
+        }
+    }
+    initializeApp(); */
+    // initilize app
+    renderBlocks();
     // Function to sort the blocksData array alphabetically by item name
-    function sortBlocksDataAlphabetically() {
+    /*function sortBlocksDataAlphabetically() {
         blocksData.sort((a, b) => {
             return a.getName().localeCompare(b.getName());
         });
-    }
-    // Load blocks from local storage
-    if (localStorage.getItem('blocksData')) {
-        blocksData = JSON.parse(localStorage.getItem('blocksData')).map(itemData => new Item(itemData.name, itemData.quantity, itemData.description));
-        renderBlocks();
-    }
+    } */
     /**
      * Add Blocks
      */
@@ -143,20 +157,24 @@ window.addEventListener('DOMContentLoaded', function () {
         // Check if all fields are filled
         if (name && !isNaN(quantity) && description) {
             // Create a new block and item element
-            const newItem = new Item(name, quantity, description);
+            const newItem = {
+                name: name,
+                quantity: quantity,
+                description: description
+            };
             //send data to backend
-            axios.post('http://localhost:3000/create', newItem)
+            axios.post('http://localhost:3000/create', newItem) //FIXME ************************************
                 .then(response => {
                     // Handle Success
                     console.log('Item added:', response.data);
                     const newBlock = document.createElement('div');
                     newBlock.classList.add('block');
-                    newBlock.textContent = newItem.getName();
+                    newBlock.textContent = newItem.name;
+                    // Set the data-id attribute to store the MongoDB _id
+                    newBlock.setAttribute('data-id', response.data);
                     // Append the new block to the container
                     blockContainer.appendChild(newBlock);
-                    // Store the block data in the array
-                    blocksData.push(newItem);
-                    saveBlocksData();
+                    //Fetch and Render updated backend
                     renderBlocks();
                     // Close the modal after adding the item
                     clearInputFields();
@@ -188,54 +206,62 @@ window.addEventListener('DOMContentLoaded', function () {
     function renderBlocks() {
         // Clear the block container
         blockContainer.innerHTML = '';
-        // Get the current search input value
-        const searchInputValue = searchInput.value.trim();
-        // Determine which array to use based on search input
-        const arrayToRender = searchInputValue === '' ? blocksData : filteredBlocks;
-        // Create and append blocks based on the data array
-        arrayToRender.forEach(function (item, index) {
-            const block = document.createElement('div');
-            block.classList.add('block');
-            // Create a container for item name and description
-            const infoContainer = document.createElement('div');
-            infoContainer.classList.add('info-container');
-            // Create a paragraph element for displaying the item name and description
-            const itemName = document.createElement('p');
-            itemName.textContent = item.name; //FIXME
-            itemName.classList.add('item-name'); // Add a class for styling
-            // Create a paragraph element for displaying the item description
-            const itemDescription = document.createElement('p');
-            itemDescription.textContent = item.description; //FIXME
-            itemDescription.classList.add('item-description');
-            // Append name and description to the container
-            infoContainer.appendChild(itemName);
-            infoContainer.appendChild(itemDescription);
-            // Create a paragraph element for displaying the quantity
-            const quantityContainer = document.createElement('div');
-            quantityContainer.classList.add('quantity-container');
-            const quantityInfo = document.createElement('p');
-            quantityInfo.textContent = item.quantity; //FIXME
-            quantityInfo.classList.add('quantity-info'); // Add a class for styling
-            quantityContainer.appendChild(quantityInfo);
-            infoContainer.appendChild(quantityContainer);
-            // append info
-            block.appendChild(infoContainer);
-            blockContainer.appendChild(block);
-            //set attribute to keep track of index in blocksData
-            block.setAttribute('ogIndex', blocksData.indexOf(item));
-            // Add an event listener to each block for options
-            block.addEventListener('click', function () {
-                showModalAttributes(index, block);
+        // Fetch data from the backend using GET request to /items
+        axios.get('http://localhost:3000/items')
+            .then(response => {
+                const items = response.data;
+                /*// Get the current search input value
+                const searchInputValue = searchInput.value.trim();
+                // Determine which array to use based on search input
+                const arrayToRender = searchInputValue === '' ? blocksData : filteredBlocks; */
+                // Create and append blocks based on the data array
+                items.forEach(item => {
+                    const block = document.createElement('div');
+                    block.classList.add('block');
+                    // Set the MongoDB _id as an attribute
+                    block.setAttribute('data-id', item._id);
+                    // Create a container for item name and description
+                    const infoContainer = document.createElement('div');
+                    infoContainer.classList.add('info-container');
+                    // Create a paragraph element for displaying the item name and description
+                    const itemName = document.createElement('p');
+                    itemName.textContent = item.name;
+                    itemName.classList.add('item-name'); // Add a class for styling
+                    // Create a paragraph element for displaying the item description
+                    const itemDescription = document.createElement('p');
+                    itemDescription.textContent = item.description; 
+                    itemDescription.classList.add('item-description');
+                    // Append name and description to the container
+                    infoContainer.appendChild(itemName);
+                    infoContainer.appendChild(itemDescription);
+                    // Create a paragraph element for displaying the quantity
+                    const quantityContainer = document.createElement('div');
+                    quantityContainer.classList.add('quantity-container');
+                    const quantityInfo = document.createElement('p');
+                    quantityInfo.textContent = item.quantity;
+                    quantityInfo.classList.add('quantity-info'); // Add a class for styling
+                    quantityContainer.appendChild(quantityInfo);
+                    infoContainer.appendChild(quantityContainer);
+                    // append info
+                    block.appendChild(infoContainer);
+                    blockContainer.appendChild(block);
+                    // Add an event listener to each block for options
+                    block.addEventListener('click', function () {
+                        showModalAttributes(block);
+                    });
+                });
+                // Update the item count display
+                const itemCountElement = document.getElementById('item-count');
+                itemCountElement.textContent = items.length;
+            })
+            .catch(error => {
+                console.error('Error fetching items:', error);
             });
-        });
-        // Update the item count display
-        const itemCountElement = document.getElementById('item-count');
-        itemCountElement.textContent = Item.getItemCount();
     }
     /**
      * Edit Blocks
      */
-    function showModalAttributes(index, block) {
+    function showModalAttributes(block) {
         const modal = document.getElementById('modalAttributes');
         const nameInput = document.getElementById('nameInput');
         const descriptionInput = document.getElementById('descriptionInput');
@@ -245,86 +271,92 @@ window.addEventListener('DOMContentLoaded', function () {
         const cancelButton = document.getElementById('cancelButton');
         // Show the modal
         modal.style.display = 'block';
-        // Retrieve the correct block data from the filteredBlocks array
-        const ogIndex = parseInt(block.getAttribute('ogIndex'));
-        const selectedBlockData = blocksData[ogIndex];
-        // Fill the input boxes with the current values
-        nameInput.value = selectedBlockData.getName();
-        descriptionInput.value = selectedBlockData.getDescription();
-        quantityInput.value = selectedBlockData.getQuantity();
-        // Close the modal only when releasing the mouse button outside of the modal
-        const clickOutsideModal = function (event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-                window.removeEventListener('click', clickOutsideModal);
-                removeEventListeners();
-            }
-        };
-        // Create named functions for event listeners
-        const onSaveChangesClicked = function () {
-            // Update the attributes with the new values
-            const newName = nameInput.value;
-            const newDescription = descriptionInput.value;
-            const newQuantity = parseInt(quantityInput.value);
-            if (newName.trim() !== '') {
-                blocksData[ogIndex].setName(newName);
-                filteredBlocks[index].setName(newName);
-            }
-            if (newDescription.trim() !== '') {
-                blocksData[ogIndex].setDescription(newDescription);
-                filteredBlocks[index].setDescription(newDescription);
-            }
-            if (!isNaN(newQuantity) && newQuantity.toString().trim() !== '') {
-                blocksData[ogIndex].setQuantity(newQuantity);
-                filteredBlocks[index].setQuantity(newQuantity);
-            } else {
-                alert('Quantity must be a valid number.');
-                return;
-            }
-            saveBlocksData();
-            renderBlocks();
-            modal.style.display = 'none';
-            removeEventListeners();
-        };
-        // Create named functions for event listeners
-        const onRemoveItemClicked = function () {
-            const confirmDelete = confirm('Are you sure you want to remove this item?');
-            if (confirmDelete) {
-                // Remove the clicked block
-                block.remove();
-                // Remove the block data from the array
-                blocksData.splice(ogIndex, 1);
-                filteredBlocks.splice(index, 1);
-                Item.decrementItemCount();
-                saveBlocksData();
-                renderBlocks();
-                modal.style.display = 'none';
-                removeEventListeners();
-            }
-        };
-        // Create named functions for event listeners
-        const onCancelClicked = function () {
-            modal.style.display = 'none';
-            removeEventListeners();
-        };
-        // Add event listeners using the named functions
-        saveChangesButton.addEventListener('click', onSaveChangesClicked);
-        removeItemButton.addEventListener('click', onRemoveItemClicked);
-        cancelButton.addEventListener('click', onCancelClicked);
-        // Function to remove event listeners
-        function removeEventListeners() {
-            saveChangesButton.removeEventListener('click', onSaveChangesClicked);
-            removeItemButton.removeEventListener('click', onRemoveItemClicked);
-            cancelButton.removeEventListener('click', onCancelClicked);
-        }
+        // Retrieve the id of the clicked block
+        const id = block.getAttribute('data-id');
+        axios.get(`http://localhost:3000/items/${id}`)
+            .then(response => {
+                const selectedItem = response.data;
+                // Fill the input boxes with the current values
+                nameInput.value = selectedItem.name;
+                descriptionInput.value = selectedItem.description;
+                quantityInput.value = selectedItem.quantity;
+                // Create named functions for event listeners
+                const onSaveChangesClicked = function (event) {
+                    event.preventDefault();
+                    // Update the attributes with the new values
+                    const newName = nameInput.value;
+                    const newDescription = descriptionInput.value;
+                    const newQuantity = parseInt(quantityInput.value);
+                    if (newName.trim() !== '' && newDescription.trim() !== '' && !isNaN(newQuantity)) {
+                        const updatedItem = {
+                            name: newName,
+                            description: newDescription,
+                            quantity: newQuantity
+                        };
+                        axios.put(`http://localhost:3000/items/${id}`, updatedItem)
+                            .then(response => {
+                                console.log('Item updated:', response.data);
+                                renderBlocks();
+                                modal.style.display = 'none';
+                                removeEventListeners();
+                            })
+                            .catch(error => {
+                                console.error('Error updating item:', error);
+                            });
+                    } else {
+                        alert('Please fill in all fields and provide a valid quantity.');
+                    }
+                };
+                // Create named functions for event listeners
+                const onRemoveItemClicked = function (event) {
+                    event.preventDefault();
+                    const confirmDelete = confirm('Are you sure you want to remove this item?');
+                    if (confirmDelete) {
+                        axios.delete(`http://localhost:3000/items/${id}`)
+                            .then(() => {
+                                // Remove the clicked block
+                                block.remove();
+                                // Update the item count display
+                                const itemCountElement = document.getElementById('item-count');
+                                itemCountElement.textContent = parseInt(itemCountElement.textContent) - 1;
+                            })
+                            .catch(error => {
+                                console.error('Error deleting item:', error);
+                            })
+                            .finally(() => {
+                                renderBlocks();
+                                modal.style.display = 'none';
+                                removeEventListeners();
+                            });
+                    }
+                };
+                // Create named functions for event listeners
+                const onCancelClicked = function () {
+                    modal.style.display = 'none';
+                    removeEventListeners();
+                };
+                // Add event listeners using the named functions
+                document.getElementById('editForm').addEventListener('submit', onSaveChangesClicked);
+                document.getElementById('deleteForm').addEventListener('submit', onRemoveItemClicked);
+                cancelButton.addEventListener('click', onCancelClicked);
+                // Function to remove event listeners
+                function removeEventListeners() {
+                    saveChangesButton.removeEventListener('submit', onSaveChangesClicked);
+                    removeItemButton.removeEventListener('click', onRemoveItemClicked);
+                    cancelButton.removeEventListener('click', onCancelClicked);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching item details:', error);
+            });
     }
     // Save blocks
-    function saveBlocksData() {
+    /*function saveBlocksData() {
         sortBlocksDataAlphabetically();
         // Convert Item objects to plain data objects for storage
         const plainData = blocksData.map(item => ({ name: item.getName(), quantity: item.getQuantity(), description: item.getDescription() }));
         // Save the block data to local storage
         localStorage.setItem('blocksData', JSON.stringify(plainData));
-    }
+    } */
 });
 /******** End Item List ********/
