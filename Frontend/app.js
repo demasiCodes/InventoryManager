@@ -1,4 +1,5 @@
 // SORRY I DON'T WANT TO DELETE MY OLD CODE SO I JUST COMMENTED IT OUT :)
+const baseURL = 'http://localhost:3000';
 /******** Item Class ********
 class Item {
     constructor(name, quantity, description, id) {
@@ -73,7 +74,7 @@ window.addEventListener('DOMContentLoaded', function () {
         const inputValue = searchInput.value.trim();
         if (inputValue !== '') {
             try {
-                const response = await axios.get(`http://localhost:3000/items/search/${inputValue}`);
+                const response = await axios.get(`${baseURL}/items/search/${inputValue}`);
                 const searchResults = response.data;
                 renderBlocks(searchResults); // Pass search results to the rendering function
             } catch (error) {
@@ -154,7 +155,7 @@ window.addEventListener('DOMContentLoaded', function () {
                 description: description
             };
             //send data to backend
-            axios.post('http://localhost:3000/create', newItem) //FIXME ************************************
+            axios.post(`${baseURL}/create`, newItem) //FIXME ************************************
                 .then(response => {
                     // Handle Success
                     console.log('Item added:', response.data);
@@ -199,7 +200,7 @@ window.addEventListener('DOMContentLoaded', function () {
         blockContainer.innerHTML = '';
         if (!items) {
             // Fetch data from the backend using GET request to /items
-            axios.get('http://localhost:3000/items')
+            axios.get(`${baseURL}/items`)
                 .then(response => {
                     items = response.data; // Assign the fetched data to items
                     // Sort the items array alphabetically by item name
@@ -268,7 +269,7 @@ window.addEventListener('DOMContentLoaded', function () {
         modal.style.display = 'block';
         // Retrieve the id of the clicked block
         const id = block.getAttribute('data-id');
-        axios.get(`http://localhost:3000/items/${id}`)
+        axios.get(`${baseURL}/items/${id}`)
             .then(response => {
                 const selectedItem = response.data;
                 // Fill the input boxes with the current values
@@ -288,7 +289,7 @@ window.addEventListener('DOMContentLoaded', function () {
                             description: newDescription,
                             quantity: newQuantity
                         };
-                        axios.put(`http://localhost:3000/items/${id}`, updatedItem)
+                        axios.put(`${baseURL}/items/${id}`, updatedItem)
                             .then(response => {
                                 console.log('Item updated:', response.data);
                                 renderBlocks();
@@ -307,7 +308,7 @@ window.addEventListener('DOMContentLoaded', function () {
                     event.preventDefault();
                     const confirmDelete = confirm('Are you sure you want to remove this item?');
                     if (confirmDelete) {
-                        axios.delete(`http://localhost:3000/items/${id}`)
+                        axios.delete(`${baseURL}/items/${id}`)
                             .then(() => {
                                 // Remove the clicked block
                                 block.remove();
