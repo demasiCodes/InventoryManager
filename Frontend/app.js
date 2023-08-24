@@ -1,6 +1,4 @@
-/*** Server Setup *******/
-
-/***End Server Setup *******/
+// SORRY I DON'T WANT TO DELETE MY OLD CODE SO I JUST COMMENTED IT OUT :)
 /******** Item Class ********
 class Item {
     constructor(name, quantity, description, id) {
@@ -54,15 +52,13 @@ window.addEventListener('DOMContentLoaded', function () {
         const inputValue = searchInput.value;
         if (inputValue !== '') {
             searchBarContainer.classList.add('active'); // Add the .active class
-            //filteredBlocks = searchBlocks(inputValue, blocksData);
         } else {
-            //filteredBlocks = blocksData;
             searchBarContainer.classList.remove('active'); // Remove the .active class
+            renderBlocks();
         }
-        renderBlocks();
     });
     // Add an event listener for entering search input
-    searchInput.addEventListener('keydown', function (event) {
+    /*searchInput.addEventListener('keydown', function (event) {
         if (event.key === 'Enter') {
             const inputValue = searchInput.value;
             // Call the renderBlocks function with the search query
@@ -71,13 +67,26 @@ window.addEventListener('DOMContentLoaded', function () {
             // Prevent the default behavior of the Enter key (form submission)
             event.preventDefault();
         }
+    }); */
+    document.getElementById('searchForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const inputValue = searchInput.value.trim();
+        if (inputValue !== '') {
+            try {
+                const response = await axios.get(`http://localhost:3000/items/search/${inputValue}`);
+                const searchResults = response.data;
+                renderBlocks(searchResults); // Pass search results to the rendering function
+            } catch (error) {
+                console.error('Error searching items:', error);
+            }
+        }
     });
     clearButton.addEventListener('click', function () {
         searchInput.value = '';
         renderBlocks();
         searchBarContainer.classList.remove('active'); // Remove the .active class
     });
-    /******** Search Algorithm ********/
+    /******** Search Algorithm ********
     function calculateLevenshteinDistance(a, b) {
         // Remove spaces and non-alphabetic characters and convert to lowercase
         a = a.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
@@ -100,7 +109,7 @@ window.addEventListener('DOMContentLoaded', function () {
         }
         return dp[a.length][b.length];
     }
-    /*function searchBlocks(query, blocksData, maxDistance = 4) {
+    function searchBlocks(query, blocksData, maxDistance = 4) {
         const results = [];
         for (const blockData of blocksData) {
             const itemName = blockData.name;
@@ -112,7 +121,7 @@ window.addEventListener('DOMContentLoaded', function () {
         results.sort((a, b) => a.distance - b.distance);
         const orderedBlocks = results.map(result => result.blockData);
         return orderedBlocks;
-    } */
+    }
     /******** End Search Algorithm ********/
 /******** End Search Bar ********/
 /******** Item List ********/
@@ -121,26 +130,8 @@ window.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('myModal'); // new item pop-ups
     const confirmButton = document.getElementById('confirm'); // new item pop-ups
     const cancelButton = document.getElementById('cancel'); // new item pop-ups
-    //let blocksData = []; //REMOVE
-    //let filteredBlocks = [];
-    /*async function initializeApp() { // DO I NEED THIS???
-        try {
-            // Fetch data from the backend using an HTTP request
-            const response = await axios.get('http://localhost:3000/items');
-            renderBlocks(); // Call a rendering function to display the blocks
-        } catch (error) {
-            console.error('Error initializing app:', error);
-        }
-    }
-    initializeApp(); */
-    // initilize app
+    // initilize item list
     renderBlocks();
-    // Function to sort the blocksData array alphabetically by item name
-    /*function sortBlocksDataAlphabetically() {
-        blocksData.sort((a, b) => {
-            return a.getName().localeCompare(b.getName());
-        });
-    } */
     /**
      * Add Blocks
      */
@@ -203,60 +194,66 @@ window.addEventListener('DOMContentLoaded', function () {
         modal.style.display = 'none';
     });
     // Render storage
-    function renderBlocks() {
+    function renderBlocks(items) {
         // Clear the block container
         blockContainer.innerHTML = '';
-        // Fetch data from the backend using GET request to /items
-        axios.get('http://localhost:3000/items')
-            .then(response => {
-                const items = response.data;
-                /*// Get the current search input value
-                const searchInputValue = searchInput.value.trim();
-                // Determine which array to use based on search input
-                const arrayToRender = searchInputValue === '' ? blocksData : filteredBlocks; */
-                // Create and append blocks based on the data array
-                items.forEach(item => {
-                    const block = document.createElement('div');
-                    block.classList.add('block');
-                    // Set the MongoDB _id as an attribute
-                    block.setAttribute('data-id', item._id);
-                    // Create a container for item name and description
-                    const infoContainer = document.createElement('div');
-                    infoContainer.classList.add('info-container');
-                    // Create a paragraph element for displaying the item name and description
-                    const itemName = document.createElement('p');
-                    itemName.textContent = item.name;
-                    itemName.classList.add('item-name'); // Add a class for styling
-                    // Create a paragraph element for displaying the item description
-                    const itemDescription = document.createElement('p');
-                    itemDescription.textContent = item.description; 
-                    itemDescription.classList.add('item-description');
-                    // Append name and description to the container
-                    infoContainer.appendChild(itemName);
-                    infoContainer.appendChild(itemDescription);
-                    // Create a paragraph element for displaying the quantity
-                    const quantityContainer = document.createElement('div');
-                    quantityContainer.classList.add('quantity-container');
-                    const quantityInfo = document.createElement('p');
-                    quantityInfo.textContent = item.quantity;
-                    quantityInfo.classList.add('quantity-info'); // Add a class for styling
-                    quantityContainer.appendChild(quantityInfo);
-                    infoContainer.appendChild(quantityContainer);
-                    // append info
-                    block.appendChild(infoContainer);
-                    blockContainer.appendChild(block);
-                    // Add an event listener to each block for options
-                    block.addEventListener('click', function () {
-                        showModalAttributes(block);
-                    });
+        if (!items) {
+            // Fetch data from the backend using GET request to /items
+            axios.get('http://localhost:3000/items')
+                .then(response => {
+                    items = response.data; // Assign the fetched data to items
+                    // Sort the items array alphabetically by item name
+                    items.sort((a, b) => a.name.localeCompare(b.name));
+                    render(items);
+                })
+                .catch(error => {
+                    console.error('Error fetching items:', error);
                 });
-                // Update the item count display
-                const itemCountElement = document.getElementById('item-count');
-                itemCountElement.textContent = items.length;
-            })
-            .catch(error => {
-                console.error('Error fetching items:', error);
+        } else {
+            // Render blocks using the provided items dataset
+            render(items);
+        }
+    }
+    function render(items) {
+        // Create and append blocks based on the data array
+        items.forEach(item => {
+            const block = document.createElement('div');
+            block.classList.add('block');
+            // Set the MongoDB _id as an attribute
+            block.setAttribute('data-id', item._id);
+            // Create a container for item name and description
+            const infoContainer = document.createElement('div');
+            infoContainer.classList.add('info-container');
+            // Create a paragraph element for displaying the item name and description
+            const itemName = document.createElement('p');
+            itemName.textContent = item.name;
+            itemName.classList.add('item-name'); // Add a class for styling
+            // Create a paragraph element for displaying the item description
+            const itemDescription = document.createElement('p');
+            itemDescription.textContent = item.description;
+            itemDescription.classList.add('item-description');
+            // Append name and description to the container
+            infoContainer.appendChild(itemName);
+            infoContainer.appendChild(itemDescription);
+            // Create a paragraph element for displaying the quantity
+            const quantityContainer = document.createElement('div');
+            quantityContainer.classList.add('quantity-container');
+            const quantityInfo = document.createElement('p');
+            quantityInfo.textContent = item.quantity;
+            quantityInfo.classList.add('quantity-info'); // Add a class for styling
+            quantityContainer.appendChild(quantityInfo);
+            infoContainer.appendChild(quantityContainer);
+            // append info
+            block.appendChild(infoContainer);
+            blockContainer.appendChild(block);
+            // Add an event listener to each block for options
+            block.addEventListener('click', function () {
+                showModalAttributes(block);
             });
+        });
+        // Update the item count display
+        const itemCountElement = document.getElementById('item-count');
+        itemCountElement.textContent = items.length;
     }
     /**
      * Edit Blocks
@@ -266,8 +263,6 @@ window.addEventListener('DOMContentLoaded', function () {
         const nameInput = document.getElementById('nameInput');
         const descriptionInput = document.getElementById('descriptionInput');
         const quantityInput = document.getElementById('quantityInput');
-        const saveChangesButton = document.getElementById('saveChangesButton');
-        const removeItemButton = document.getElementById('removeItemButton');
         const cancelButton = document.getElementById('cancelButton');
         // Show the modal
         modal.style.display = 'block';
@@ -341,8 +336,8 @@ window.addEventListener('DOMContentLoaded', function () {
                 cancelButton.addEventListener('click', onCancelClicked);
                 // Function to remove event listeners
                 function removeEventListeners() {
-                    saveChangesButton.removeEventListener('submit', onSaveChangesClicked);
-                    removeItemButton.removeEventListener('click', onRemoveItemClicked);
+                    document.getElementById('editForm').removeEventListener('submit', onSaveChangesClicked);
+                    document.getElementById('deleteForm').removeEventListener('submit', onRemoveItemClicked);
                     cancelButton.removeEventListener('click', onCancelClicked);
                 }
             })

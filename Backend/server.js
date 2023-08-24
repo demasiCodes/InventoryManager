@@ -103,3 +103,23 @@ app.delete('/items/:id', async (req, res) => {
         res.status(500).json({ error: 'Failed to delete item' });
     }
 });
+
+app.get('/items/search/:query', async (req, res) => {
+    const searchQuery = req.params.query;
+    try {
+        const regex = new RegExp(searchQuery, 'i'); // Case-insensitive search
+        const searchResults = await collection.find({
+            $or: [
+                { name: { $regex: regex } },
+                { description: { $regex: regex } }
+            ]
+        })
+            .sort({ score: -1 })
+            .toArray();
+
+        res.status(200).json(searchResults);
+    } catch (error) {
+        console.error('Error searching items:', error);
+        res.status(500).json({ error: 'Failed to search items' });
+    }
+});
