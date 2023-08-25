@@ -1,5 +1,5 @@
 // SORRY I DON'T WANT TO DELETE MY OLD CODE SO I JUST COMMENTED IT OUT :)
-const baseURL = 'https://outkeialwske4te5vabqoddloq0mrtiw.lambda-url.us-east-2.on.aws/'; 
+const baseURL = 'https://outkeialwske4te5vabqoddloq0mrtiw.lambda-url.us-east-2.on.aws'; 
 //use for local testing: http://localhost:3000
 /******** Item Class ********
 class Item {
